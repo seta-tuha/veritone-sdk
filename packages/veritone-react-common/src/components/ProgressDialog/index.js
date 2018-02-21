@@ -84,6 +84,7 @@ export default class ProgressDialog extends React.Component {
 
     return (
       <Paper
+        className="veritoneReactCommonGlobals"
         classes={{ root: styles.container }}
         style={{ height: this.props.height, width: this.props.width }}
       >

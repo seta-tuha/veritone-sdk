@@ -1,4 +1,5 @@
 import React from 'react';
+import cx from 'classnames';
 import Paper from 'material-ui/Paper';
 import IconButton from 'material-ui/IconButton';
 import CloseIcon from 'material-ui-icons/Close';
@@ -71,7 +72,7 @@ export default class AppBar extends React.Component {
         component="header"
         square
         elevation={this.props.elevation}
-        className={styles.appBar}
+        className={cx('veritoneReactCommonGlobals', styles.appBar)}
         style={{ height: appBarHeight, background: this.props.backgroundColor }}
       >
         <div className={styles.container}>

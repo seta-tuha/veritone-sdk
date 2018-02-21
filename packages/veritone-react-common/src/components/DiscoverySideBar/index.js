@@ -119,13 +119,15 @@ export default class DiscoverySideBarContainer extends React.Component {
 
   render() {
     return (
-      <DiscoverySideBarContainerPure
-        {...this.props}
-        selectedTab={this.state.selectedTab}
-        onSelectTab={this.handleSelectTab}
-        filtersActivePath={this.state.filtersActivePath}
-        onFiltersNavigate={this.handleFiltersNavigate}
-      />
+      <div className="veritoneReactCommonGlobals">
+        <DiscoverySideBarContainerPure
+          {...this.props}
+          selectedTab={this.state.selectedTab}
+          onSelectTab={this.handleSelectTab}
+          filtersActivePath={this.state.filtersActivePath}
+          onFiltersNavigate={this.handleFiltersNavigate}
+        />
+      </div>
     );
   }
 }

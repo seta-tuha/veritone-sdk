@@ -1,5 +1,3 @@
-import '../src/styles/global.scss';
-
 export AppBar, { appBarHeight } from './components/AppBar';
 export AppFooter, {
   appFooterHeightShort,

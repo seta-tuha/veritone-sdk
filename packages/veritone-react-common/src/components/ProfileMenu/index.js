@@ -50,7 +50,7 @@ export default class ProfileMenu extends React.Component {
 
   render() {
     return (
-      <div>
+      <div className="veritoneReactCommonGlobals">
         <IconButton className={this.props.className} onClick={this.openMenu}>
           <AccountIcon color="white" />
         </IconButton>

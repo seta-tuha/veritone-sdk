@@ -51,7 +51,10 @@ export default class AppSwitcher extends React.Component {
   render() {
     // todo: loading state
     return (
-      <div style={{ display: 'flex', alignItems: 'center' }}>
+      <div
+        style={{ display: 'flex', alignItems: 'center' }}
+        className="veritoneReactCommonGlobals"
+      >
         <IconButton onClick={this.openMenu}>
           <AppsIcon color="white" />
         </IconButton>

@@ -25,7 +25,7 @@ const RaisedTextField = ({
 
   return (
     <Paper
-      className={cx(styles.paper, className)}
+      className={cx('veritoneReactCommonGlobals', styles.paper, className)}
       style={containerStyle}
       square
     >

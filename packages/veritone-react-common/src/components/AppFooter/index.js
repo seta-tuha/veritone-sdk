@@ -1,4 +1,5 @@
 import React from 'react';
+import cx from 'classnames';
 import Paper from 'material-ui/Paper';
 import { node, number, oneOf } from 'prop-types';
 
@@ -22,7 +23,7 @@ const AppFooter = ({
       component="footer"
       square
       elevation={elevation}
-      className={styles.container}
+      className={cx('veritoneReactCommonGlobals', styles.container)}
       style={{ height: footerHeight, marginLeft: leftOffset }}
     >
       {children}

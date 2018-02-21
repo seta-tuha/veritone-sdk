@@ -1,4 +1,5 @@
 import React from 'react';
+import cx from 'classnames';
 
 import { string, number, func } from 'prop-types';
 
@@ -13,7 +14,7 @@ const Avatar = ({ src, size = 85, label, onClick }) => {
         width: size,
         cursor: onClick ? 'pointer' : 'initial'
       }}
-      className={styles.container}
+      className={cx('veritoneReactCommonGlobals', styles.container)}
       onClick={onClick}
     >
       {label && (

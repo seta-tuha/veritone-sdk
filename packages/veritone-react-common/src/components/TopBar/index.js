@@ -73,7 +73,7 @@ export default class TopBar extends React.Component {
           marginLeft: this.props.leftOffset,
           background: '#fafafa'
         }}
-        className={cx(styles.container, {
+        className={cx('veritoneReactCommonGlobals', styles.container, {
           [styles.selected]: this.props.selected
         })}
         square

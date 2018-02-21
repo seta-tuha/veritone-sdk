@@ -5,6 +5,7 @@ import mime from 'mime-types';
 import Paper from 'material-ui/Paper';
 import withMuiThemeProvider from 'helpers/withMuiThemeProvider';
 import { string, arrayOf, oneOfType, number, bool, func } from 'prop-types';
+import withGlobalStyles from 'helpers/withGlobalStyles'
 import FileUploader from './FileUploader';
 import FileList from './FileList';
 import FilePickerHeader from './FilePickerHeader';
@@ -182,4 +183,4 @@ class FilePicker extends Component {
   }
 }
 
-export default DragDropContext(FilePicker);
+export default withGlobalStyles(DragDropContext(FilePicker));

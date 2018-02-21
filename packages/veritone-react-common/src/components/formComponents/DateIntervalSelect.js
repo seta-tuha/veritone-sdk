@@ -21,7 +21,7 @@ const DateIntervalSelect = ({
   ...props
 }) => {
   return (
-    <Select {...props}>
+    <Select className="veritoneReactCommonGlobals" {...props}  >
       {map(intervals, (interval, id) => (
         <MenuItem value={interval} key={id}>
           {interval.label}

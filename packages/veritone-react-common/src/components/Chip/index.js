@@ -30,7 +30,11 @@ export default class Chip extends React.Component {
     const { hoveredLabel, label, ...chipProps } = this.props;
 
     return (
-      <div onMouseOver={this.handleMouseOver} onMouseOut={this.handleMouseOut}>
+      <div
+        onMouseOver={this.handleMouseOver}
+        onMouseOut={this.handleMouseOut}
+        className="veritoneReactCommonGlobals"
+      >
         <LibChip
           classes={{ root: styles.root }}
           {...chipProps}

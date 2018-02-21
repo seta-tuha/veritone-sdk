@@ -1,4 +1,5 @@
 import React from 'react';
+import cx from 'classnames';
 import { isNumber } from 'lodash';
 import { node, bool, number, oneOf, shape, string } from 'prop-types';
 import { appBarHeight } from '../AppBar';
@@ -38,7 +39,10 @@ const AppContainer = ({
 
   // todo: anims when styles change
   return (
-    <div style={outerStyle} className={classes.root}>
+    <div
+      style={outerStyle}
+      className={cx('veritoneReactCommonGlobals', classes.root)}
+    >
       <div
         style={{
           height: '100%',
@@ -46,7 +50,7 @@ const AppContainer = ({
           overflowX: 'hidden',
           overflowY: 'scroll'
         }}
-        className={classes.inner}
+        className={cx('veritoneReactCommonGlobals', classes.inner)}
       >
         {children}
       </div>

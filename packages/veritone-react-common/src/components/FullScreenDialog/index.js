@@ -13,6 +13,7 @@ export default class FullScreenDialog extends React.Component {
 
   render() {
     const containerClasses = cx(
+      'veritoneReactCommonGlobals',
       styles['dialog'],
       this.props.open && styles['dialog--is-open']
     );

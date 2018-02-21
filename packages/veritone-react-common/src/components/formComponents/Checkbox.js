@@ -6,12 +6,13 @@ import { FormControlLabel } from 'material-ui/Form';
 const Checkbox = ({
   /* eslint-disable react/prop-types, react/jsx-no-bind */
   meta,
-  input: { onChange, value, ...inputProps },
+  input: { onChange, value, ...inputProps } = {},
   label,
   labelProps,
   ...props
 }) => (
   <FormControlLabel
+    className="veritoneReactCommonGlobals"
     control={
       <LibCheckbox
         checked={!!value}

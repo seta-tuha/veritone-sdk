@@ -1,4 +1,5 @@
 import '../src/styles/global.scss';
+import V3SearchBar from './components/SearchBar/component';
 
 export AppBar, { appBarHeight } from './components/AppBar';
 export AppFooter, {
@@ -17,3 +18,4 @@ export FilePicker from './components/FilePicker';
 export ProgressDialog from './components/ProgressDialog';
 export * as formComponents from './components/formComponents';
 export AppContainer from './components/AppContainer';
+export V3SearchBar from './components/SearchBar/component';

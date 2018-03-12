@@ -39,6 +39,7 @@ export default [
       'material-ui/styles',
       'material-ui/Form',
       'material-ui/Progress',
+      'material-ui/BottomNavigation',
       'mime-types',
       'pluralize',
       'prop-types',
@@ -58,6 +59,7 @@ export default [
       }),
 
       babel({
+        runtimeHelpers: true,
         include: ['src/**/*.js']
       }),
 

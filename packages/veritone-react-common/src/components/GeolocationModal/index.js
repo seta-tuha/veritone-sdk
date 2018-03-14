@@ -87,7 +87,7 @@ class GeolocationModal extends React.Component {
           position[0] = this.props.modalState.latitude,
           position[1] = this.props.modalState.longitude
 
-          let newCircle = circle( position,  {radius: this.props.modalState.distance});
+          let newCircle = L.circle( position,  {radius: this.props.modalState.distance});
           newCircle._createdTime = new Date();
           newCircle._type = 'geolocationModal';
           newCircle.addTo(map);
@@ -114,7 +114,7 @@ class GeolocationModal extends React.Component {
         // tile configuration for the map
         L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png').addTo(map);
 
-        var drawnItems = new featureGroup();
+        var drawnItems = new L.featureGroup();
         map.addLayer(drawnItems);
 
         // add the geolocation search controller
@@ -135,7 +135,7 @@ class GeolocationModal extends React.Component {
         map.on('geosearch/showlocation', function(event) {
           removeExistingSelections(map);
           let latlong = [event.location.y, event.location.x];
-          let newCircle = circle( latlong,  {radius: 1500});
+          let newCircle = L.circle( latlong,  {radius: 1500});
           newCircle._createdTime = new Date();
           newCircle._type = 'geolocationModal';
           newCircle.addTo(map);

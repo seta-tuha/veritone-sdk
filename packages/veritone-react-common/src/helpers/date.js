@@ -138,6 +138,20 @@ export class Interval {
   }
 }
 
+// https://github.com/date-fns/date-fns/issues/376#issuecomment-353871093
+export const getUTCDate = (dateString = Date.now()) => {
+  const date = new Date(dateString);
+
+  return new Date(
+    date.getUTCFullYear(),
+    date.getUTCMonth(),
+    date.getUTCDate(),
+    date.getUTCHours(),
+    date.getUTCMinutes(),
+    date.getUTCSeconds(),
+  );
+};
+
 export const defaultIntervals = {
   day: new Interval({
     label: 'Last day',

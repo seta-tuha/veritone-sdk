@@ -1,6 +1,6 @@
 import React from 'react';
 import { arrayOf, func, object, string } from 'prop-types';
-import { SearchBar } from '.';
+import { SearchBar } from './SearchBar';
 import Menu, { MenuItem } from 'material-ui/Menu';
 import Popover from 'material-ui/Popover';
 import Paper from 'material-ui/Paper';
@@ -16,7 +16,7 @@ import { last, map, filter, debounceTime, distinctUntilChanged, switchMap } from
 import { fromEvent } from 'rxjs/observable/fromEvent';
 
 import { withTheme } from 'material-ui/styles'
-import { guid } from './component';
+import { guid } from 'helpers/guid';
 
 import Card, { CardHeader, CardMedia, CardContent, CardActions } from 'material-ui/Card';
 import Button from 'material-ui/Button';

@@ -1,5 +1,6 @@
 import React from 'react';
-import { Avatar, Button, Chip, Paper, TextField } from 'material-ui';
+import Button from 'material-ui/Button';
+import Chip from 'material-ui/Chip';
 import Downshift from 'downshift';
 import { isArray } from 'lodash';
 import Rx from 'rxjs/Rx';
@@ -12,9 +13,11 @@ import "rxjs/add/operator/take";
 import "rxjs/add/operator/takeUntil";
 import { debounceTime, distinctUntilChanged, switchMap } from 'rxjs/operators';
 import { fromEvent } from 'rxjs/observable/fromEvent';
-
+import TextField from 'material-ui/TextField';
 import Typography from 'material-ui/Typography';
 import List, { ListItem, ListItemText } from 'material-ui/List';
+import Paper from 'material-ui/Paper';
+import Avatar from 'material-ui/Avatar';
 
 const autocompletePillLabelClass = cx(styles['autocompletePillLabel']);
 const autocompletePillClass = cx(styles['autocompletePill']);
@@ -154,7 +157,7 @@ const SearchAutocompleteDownshift = ({
           { isOpen && results && results.length ?
             <Paper square
               style={{
-                maxHeight: '300px', 
+                maxHeight: '300px',
                 overflow: 'auto',
               }}
             >

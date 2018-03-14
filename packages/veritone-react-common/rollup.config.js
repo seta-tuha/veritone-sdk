@@ -11,6 +11,7 @@ import { snakeCase } from 'lodash';
 import * as mui from 'material-ui';
 import * as muiIcons from 'material-ui-icons';
 import * as datefns from 'date-fns';
+
 import * as lodash from 'lodash';
 import sass from './rollup-postcss-sass-loader';
 
@@ -39,7 +40,8 @@ export default [
       'material-ui/styles',
       'material-ui/Form',
       'material-ui/Progress',
-      'material-ui/BottomNavigation',
+      'material-ui/List/ListSubheader',
+      'material-ui/TextField',
       'mime-types',
       'pluralize',
       'prop-types',
@@ -75,7 +77,8 @@ export default [
         // modulesOnly: true
       }),
       commonjs({
-        include: ['../../node_modules/**', 'node_modules/**', '../**']
+        include: ['../../node_modules/**', 'node_modules/**', '../**'],
+        exclude: ['../../node_modules/material-ui/index.es.js']
       }),
 
       postcss({

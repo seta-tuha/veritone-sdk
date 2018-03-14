@@ -1,4 +1,4 @@
-import { supportedEngineCategoryType } from '.';
+import { supportedEngineCategoryType } from './SearchBar';
 import { shape, func, string } from 'prop-types';
 import React from 'react';
 

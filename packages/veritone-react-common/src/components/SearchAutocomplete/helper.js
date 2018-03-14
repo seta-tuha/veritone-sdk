@@ -1,5 +1,4 @@
 import { isArray } from 'lodash';
-import 'whatwg-fetch';
 
 export default function attachAutocomplete(url, config) {
   return function(target) {

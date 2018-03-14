@@ -8,10 +8,20 @@ import Dialog, {
   DialogTitle
 } from 'material-ui/Dialog';
 import { FormControlLabel, FormHelperText } from 'material-ui/Form';
-import Switch from 'material-ui/Switch';
-import moment from 'moment';
+import Switch from 'material-ui/Switch'
 import styles from './styles.scss';
 import { arrayOf, bool, func, string, date, shape } from 'prop-types';
+
+
+import { getUTCDate } from 'helpers/date';
+import {
+  parse,
+  addHours,
+  addMinutes,
+  startOfHour,
+  endOfHour,
+} from 'date-fns';
+import format from 'date-fns/format';
 
 import TextField from 'material-ui/TextField';
 
@@ -40,8 +50,6 @@ export default class TimeSearchModal extends React.Component {
     copy.selectedDays = Object.assign([], searchFilter.selectedDays);
     return copy;
   };
-
-
 
   initializeState = (initialValue) => {
     const filterValue = this.copyFilter(initialValue);
@@ -103,6 +111,7 @@ export default class TimeSearchModal extends React.Component {
       return
     } else {
       const filterValue = this.copyFilter(this.state.filterValue);
+      // station broadcast time is false, convert time to UTC (apply the -timezone)
       if(filterValue.stationBroadcastTime === false) {
         filterValue.dayPartStartTime = fromLocalToUTC(filterValue.dayPartStartTime);
         filterValue.dayPartEndTime = fromLocalToUTC(filterValue.dayPartEndTime);
@@ -130,45 +139,31 @@ export default class TimeSearchModal extends React.Component {
 const daysOfTheWeek = [
   {
     isoWeekday: 1,
-    name: moment()
-      .isoWeekday(1)
-      .format('ddd')
+    name: 'Monday'
   }, // MONDAY
   {
     isoWeekday: 2,
-    name: moment()
-      .isoWeekday(2)
-      .format('ddd')
+    name: 'Tuesday'
   },
   {
     isoWeekday: 3,
-    name: moment()
-      .isoWeekday(3)
-      .format('ddd')
+    name: 'Wednesday'
   },
   {
     isoWeekday: 4,
-    name: moment()
-      .isoWeekday(4)
-      .format('ddd')
+    name: 'Thursday'
   },
   {
     isoWeekday: 5,
-    name: moment()
-      .isoWeekday(5)
-      .format('ddd')
+    name: 'Friday'
   },
   {
     isoWeekday: 6,
-    name: moment()
-      .isoWeekday(6)
-      .format('ddd')
+    name: 'Saturday'
   },
   {
     isoWeekday: 7,
-    name: moment()
-      .isoWeekday(7)
-      .format('ddd')
+    name: 'Sunday'
   } // SUNDAY
 ];
 
@@ -181,7 +176,6 @@ export const TimeSearchForm = ({
   inputValue
 }) => {
   const asterisk = !inputValue.stationBroadcastTime ? '*' : '';
-
   return (
       <div className={cx(styles['timeSearchConfigContent'])}>
         <div className={cx(styles['timeSelectSection'])}>
@@ -266,18 +260,6 @@ export const TimeSearchForm = ({
             </Typography>
           </label>
         )}
-              { /*
-        disabled={
-          !inputValue ||
-          !inputValue.dayPartStartTime ||
-          !inputValue.dayPartStartTime.length ||
-          !inputValue.dayPartEndTime ||
-          !inputValue.dayPartEndTime.length ||
-          (inputValue.stationBroadcastTime &&
-            !inputValue.selectedDays.some(item => item == true))
-        }
-
-      */}
       </div>
   );
 };
@@ -285,82 +267,12 @@ export const TimeSearchForm = ({
 TimeSearchModal.defaultProps = {
   modalState: {
     search: {
-      dayPartStartTime: moment.utc()
-        .subtract(1, 'hour')
-        .startOf('hour')
-        .format('HH:mm'),
-      dayPartEndTime: moment.utc()
-        .subtract(1, 'hour')
-        .endOf('hour')
-        .milliseconds(0)
-        .seconds(0)
-        .format('HH:mm'),
+      dayPartStartTime: format(startOfHour(addHours( new Date(), -1), new Date().getTimezoneOffset()), 'HH:mm'),
+      dayPartEndTime: format(endOfHour(addHours( new Date(), -1), new Date().getTimezoneOffset()), 'HH:mm'),
       stationBroadcastTime: false,
       selectedDays: [true, true, true, true, true, true, true]
     }
   }
-};
-
-const TimeConditionGenerator = modalState => {
-  const dayPartTimeToMinutes = function(hourMinuteTime) {
-    if (
-      !hourMinuteTime ||
-      typeof hourMinuteTime !== 'string' ||
-      hourMinuteTime.length != 5
-    ) {
-      return 0;
-    }
-    const hourMinute = hourMinuteTime.split(':');
-    return parseInt(hourMinute[0]) * 60 + parseInt(hourMinute[1]);
-  };
-  const startMinutes = dayPartTimeToMinutes(modalState.search.dayPartStartTime);
-  const endMinutes = dayPartTimeToMinutes(modalState.search.dayPartEndTime);
-  const dayMinuteField = modalState.search.stationBroadcastTime
-    ? 'dayMinuteLocal'
-    : 'dayMinuteUTC';
-
-  const conditions = [];
-
-  if (startMinutes <= endMinutes) {
-    conditions.push({
-      operator: 'range',
-      field: dayMinuteField,
-      gte: startMinutes,
-      lte: endMinutes
-    });
-  } else {
-    conditions.push({
-      operator: 'range',
-      field: dayMinuteField,
-      gte: startMinutes,
-      lte: 24 * 60
-    });
-    conditions.push({
-      operator: 'range',
-      field: dayMinuteField,
-      gte: 0,
-      lte: endMinutes
-    });
-  }
-
-  if (modalState.search.stationBroadcastTime) {
-    const selectedIsoWeekdays = [];
-    modalState.search.forEach((item, index) => {
-      if (item) {
-        selectedIsoWeekdays.push(String(index + 1));
-      }
-    });
-    conditions.push({
-      operator: 'terms',
-      field: 'weekDayLocal',
-      values: selectedIsoWeekdays
-    });
-  }
-
-  return {
-    operator: 'and',
-    conditions: conditions
-  };
 };
 
 const TimeDisplay = modalState => {
@@ -368,17 +280,14 @@ const TimeDisplay = modalState => {
   if (modalState.search.dayPartStartTime && modalState.search.dayPartEndTime) {
     let dayPartStartTime = modalState.search.dayPartStartTime;
     let dayPartEndTime = modalState.search.dayPartEndTime;
+
     if(modalState.search.stationBroadcastTime === false) {
       dayPartStartTime = fromUTCToLocal(dayPartStartTime);
       dayPartEndTime = fromUTCToLocal(dayPartEndTime);
     }
-    const startTime = moment(
-      dayPartStartTime,
-      'HH:mm'
-    ).format('hh:mm A');
-    const endTime = moment(dayPartEndTime, 'HH:mm').format(
-      'hh:mm A'
-    );
+    const startTime = format(new Date().toDateString() + " " + dayPartStartTime, 'hh:mm A');
+    const endTime = format(new Date().toDateString() + " " + dayPartEndTime, 'hh:mm A');
+
     abbreviationMessage = `${startTime}-${endTime}`;
     if (modalState.search.stationBroadcastTime) {
       const selectedDays = daysOfTheWeek
@@ -401,11 +310,13 @@ const TimeDisplay = modalState => {
 };
 
 const fromLocalToUTC = (inputTime) => {
-  return moment(inputTime, 'HH:mm').utc().format('HH:mm');
+  const converted = parse(new Date().toDateString() + ' ' + inputTime);
+  return format(addMinutes(converted, new Date().getTimezoneOffset()), 'HH:mm');
 };
 
 const fromUTCToLocal = (inputTime) => {
-  return moment.utc(inputTime, 'HH:mm').local().format('HH:mm');
+  const converted = parse(new Date().toDateString() + ' ' + inputTime + ":00Z");
+  return format(converted, 'HH:mm');
 };
 
-export { TimeSearchModal, TimeConditionGenerator, TimeDisplay };
+export { TimeSearchModal, TimeDisplay };

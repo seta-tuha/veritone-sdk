@@ -1,5 +1,6 @@
 import React from 'react';
-import { Button, TextField } from 'material-ui';
+import Button from 'material-ui/Button';
+import TextField from 'material-ui/TextField';
 import { FormHelperText, FormGroup, FormControlLabel } from 'material-ui/Form';
 import Grid from 'material-ui/Grid';
 import Checkbox from 'material-ui/Checkbox';
@@ -18,7 +19,6 @@ import Dialog, {
 import { bool, func, string, shape, arrayOf } from 'prop-types';
 import update from 'immutability-helper';
 import { isArray } from 'lodash';
-import 'whatwg-fetch';
 
 // Logo Autocomplete config:
 const logoConfig = {

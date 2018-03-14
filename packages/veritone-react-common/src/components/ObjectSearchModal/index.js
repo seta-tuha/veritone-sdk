@@ -1,7 +1,8 @@
 import React from 'react';
-import { Button, TextField } from 'material-ui';
+import Button from 'material-ui/Button';
 import { FormHelperText, FormGroup, FormControlLabel } from 'material-ui/Form';
 import Grid from 'material-ui/Grid';
+import TextField from 'material-ui/TextField';
 import Checkbox from 'material-ui/Checkbox';
 import SearchAutocompleteContainer from '../SearchAutocomplete';
 import attachAutocomplete from '../SearchAutocomplete/helper.js';

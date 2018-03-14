@@ -17,7 +17,8 @@ export default [
     plugins: [
       babel({
         include: ['src/**/*.js'],
-        runtimeHelpers: true
+        runtimeHelpers: true,
+        exclude: 'node_modules/**'
       })
     ]
   }

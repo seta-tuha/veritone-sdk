@@ -1,7 +1,7 @@
 import React from 'react';
 import { storiesOf } from '@storybook/react';
 import { object } from '@storybook/addon-knobs/react';
-import V3SearchBar from './component';
+import V3SearchBar from 'components/SearchBar';
 //import searchQueryGenerator from '../../../../veritone-csp-generator/index'
 
 
@@ -27,7 +27,7 @@ storiesOf('SearchBar', module)
     <V3SearchBar color={'#00aacc'}
       onSearch={onSearch}
       csp={csp}
-      api={'https://enterprise.stage.veritone.com/api'}
+      api={'https://api.aws-dev.veritone.com/'}
     />
     </div>
     ] ;

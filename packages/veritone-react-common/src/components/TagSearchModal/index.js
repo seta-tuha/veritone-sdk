@@ -1,5 +1,5 @@
 import React from 'react';
-import { Button, TextField } from 'material-ui';
+import Button  from 'material-ui/Button';
 import { FormHelperText, FormGroup, FormControlLabel } from 'material-ui/Form';
 import Grid from 'material-ui/Grid';
 import Checkbox from 'material-ui/Checkbox';
@@ -8,6 +8,7 @@ import attachAutocomplete from '../SearchAutocomplete/helper.js';
 
 import ModalSubtitle from '../ModalSubtitle';
 import { LinearProgress } from 'material-ui/Progress';
+import TextField from 'material-ui/TextField';
 
 import Dialog, {
   DialogActions,
@@ -18,7 +19,6 @@ import Dialog, {
 import { bool, func, string, shape, arrayOf } from 'prop-types';
 import update from 'immutability-helper';
 import { isArray } from 'lodash';
-import 'whatwg-fetch';
 
 // Tag Autocomplete config:
 const tagConfig = {

@@ -618,11 +618,11 @@ function* createFileAssetSaga(widgetId, type, contentType, sourceData, fileData)
   if (!isEmpty(response.errors)) {
     return yield put(createFileAssetFailure(widgetId, { error: response.errors.join(', \n') }));
   }
-  if (!get(response, 'data.id')) {
+  if (!get(response, 'data.createAsset.id')) {
     return yield put(createFileAssetFailure(widgetId, { error: 'Failed to create file asset.' }));
   }
 
-  const assetId = get(response, 'data.id');
+  const assetId = get(response, 'data.createAsset.id');
 
   if (assetId) {
     yield put(createFileAssetSuccess(widgetId, assetId));

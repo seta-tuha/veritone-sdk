@@ -609,7 +609,7 @@ function* createFileAssetSaga(widgetId, type, contentType, sourceData, fileData)
     }).then(r => {
       console.log('r.json():', r.json());
       return r.json();
-    })
+    });
   };
 
   let response;
@@ -624,9 +624,7 @@ function* createFileAssetSaga(widgetId, type, contentType, sourceData, fileData)
     console.log('+'.repeat(50))
     return yield put(createFileAssetFailure(widgetId, { error: response.errors.join(', \n') }));
   }
-
   if (!get(response, 'data.createAsset.id')) {
-    console.log('!'.repeat(50))
     return yield put(createFileAssetFailure(widgetId, { error: 'Failed to create file asset.' }));
   }
 

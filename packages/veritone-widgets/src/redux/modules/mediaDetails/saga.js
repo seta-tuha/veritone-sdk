@@ -564,7 +564,6 @@ function* deleteAssetsSaga(assetIds) {
 
 function* createFileAssetSaga(widgetId, type, contentType, sourceData, fileData) {
   const requestTdo = yield select(getTdo, widgetId);
-  console.log('requestTdo:', requestTdo);
   const createAssetQuery = `mutation createAsset($tdoId: ID!, $type: String, $contentType: String, $file: UploadedFile){
     createAsset( input: {
       containerId: $tdoId,
@@ -588,8 +587,6 @@ function* createFileAssetSaga(widgetId, type, contentType, sourceData, fileData)
   const graphQLUrl = `${apiRoot}/${graphQLEndpoint}`;
   const token = yield select(authModule.selectSessionToken);
 
-  console.log('token:', token)
-
   const formData = new FormData();
   formData.append('query', createAssetQuery);
   formData.append('variables', JSON.stringify(variables));
@@ -607,7 +604,6 @@ function* createFileAssetSaga(widgetId, type, contentType, sourceData, fileData)
         Authorization: `Bearer ${authToken}`
       }
     }).then(r => {
-      console.log('r.json():', r.json());
       return r.json();
     });
   };
@@ -615,13 +611,10 @@ function* createFileAssetSaga(widgetId, type, contentType, sourceData, fileData)
   let response;
   try {
     response = yield call(saveFile, { endpoint: graphQLUrl, data: formData, authToken: token});
-    console.log('response:', response);
   } catch (error) {
     return yield put(createFileAssetFailure(widgetId, { error }));
   }
-  console.log('response:', response);
   if (!isEmpty(response.errors)) {
-    console.log('+'.repeat(50))
     return yield put(createFileAssetFailure(widgetId, { error: response.errors.join(', \n') }));
   }
   if (!get(response, 'data.createAsset.id')) {
@@ -629,7 +622,6 @@ function* createFileAssetSaga(widgetId, type, contentType, sourceData, fileData)
   }
 
   const assetId = get(response, 'data.createAsset.id');
-  console.log('assetId:', assetId)
   if (assetId) {
     yield put(createFileAssetSuccess(widgetId, assetId));
   }
@@ -1104,7 +1096,7 @@ function* watchCreateFileAssetSuccess() {
     createJob(input: {
       targetId: $tdoId,
       tasks: [{
-        engineId: 'insert-into-index'
+        engineId: "insert-into-index"
       }]
     }) {
       id

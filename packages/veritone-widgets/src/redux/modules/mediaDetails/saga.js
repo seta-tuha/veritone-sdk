@@ -605,12 +605,12 @@ function* createFileAssetSaga(widgetId, type, contentType, sourceData, fileData)
       }
     }).then(r => {
       return r.json();
-    })
+    });
   };
 
   let response;
   try {
-    response = yield call(saveFile, { endpoint: graphQLUrl, data: formData, authToken: token});
+    response = yield call(saveFile, { endpoint: graphQLUrl, data: formData, authToken: token });
   } catch (error) {
     return yield put(createFileAssetFailure(widgetId, { error }));
   }

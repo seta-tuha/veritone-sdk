@@ -564,6 +564,7 @@ function* deleteAssetsSaga(assetIds) {
 
 function* createFileAssetSaga(widgetId, type, contentType, sourceData, fileData) {
   const requestTdo = yield select(getTdo, widgetId);
+  console.log('requestTdo:', requestTdo);
   const createAssetQuery = `mutation createAsset($tdoId: ID!, $type: String, $contentType: String, $file: UploadedFile){
     createAsset( input: {
       containerId: $tdoId,
@@ -587,6 +588,8 @@ function* createFileAssetSaga(widgetId, type, contentType, sourceData, fileData)
   const graphQLUrl = `${apiRoot}/${graphQLEndpoint}`;
   const token = yield select(authModule.selectSessionToken);
 
+  console.log('token:', token)
+
   const formData = new FormData();
   formData.append('query', createAssetQuery);
   formData.append('variables', JSON.stringify(variables));
@@ -604,6 +607,7 @@ function* createFileAssetSaga(widgetId, type, contentType, sourceData, fileData)
         Authorization: `Bearer ${authToken}`
       }
     }).then(r => {
+      console.log('r.json():', r.json());
       return r.json();
     })
   };
@@ -611,19 +615,23 @@ function* createFileAssetSaga(widgetId, type, contentType, sourceData, fileData)
   let response;
   try {
     response = yield call(saveFile, { endpoint: graphQLUrl, data: formData, authToken: token});
+    console.log('response:', response);
   } catch (error) {
     return yield put(createFileAssetFailure(widgetId, { error }));
   }
-
+  console.log('response:', response);
   if (!isEmpty(response.errors)) {
+    console.log('+'.repeat(50))
     return yield put(createFileAssetFailure(widgetId, { error: response.errors.join(', \n') }));
   }
-  if (!get(response, 'data.id')) {
+
+  if (!get(response, 'data.createAsset.id')) {
+    console.log('!'.repeat(50))
     return yield put(createFileAssetFailure(widgetId, { error: 'Failed to create file asset.' }));
   }
 
-  const assetId = get(response, 'data.id');
-
+  const assetId = get(response, 'data.createAsset.id');
+  console.log('assetId:', assetId)
   if (assetId) {
     yield put(createFileAssetSuccess(widgetId, assetId));
   }
@@ -1079,7 +1087,8 @@ function* watchSaveAssetData() {
     // process vtn-standard asset
     const contentType = 'application/json';
     const type = 'vtn-standard';
-    const sourceData = `{ name: "${assetData.sourceEngineName}", engineId: "${assetData.sourceEngineId}" }`;
+    // const sourceData = `{ name: "${assetData.sourceEngineName}", engineId: "${assetData.sourceEngineId}" }`;
+    const sourceData = `{ engineId: "${assetData.sourceEngineId}" }`;
     const { widgetId } = action.meta;
     yield call(createFileAssetSaga, widgetId, type, contentType, sourceData, assetData);
   });

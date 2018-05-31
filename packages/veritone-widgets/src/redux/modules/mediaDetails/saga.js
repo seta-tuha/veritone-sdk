@@ -616,7 +616,6 @@ function* createFileAssetSaga(widgetId, type, contentType, sourceData, fileData)
   } catch (error) {
     return yield put(createFileAssetFailure(widgetId, { error }));
   }
-
   if (!isEmpty(response.errors)) {
     return yield put(createFileAssetFailure(widgetId, { error: response.errors.join(', \n') }));
   }
@@ -625,7 +624,6 @@ function* createFileAssetSaga(widgetId, type, contentType, sourceData, fileData)
   }
 
   const assetId = get(response, 'data.createAsset.id');
-
   if (assetId) {
     yield put(createFileAssetSuccess(widgetId, assetId));
   }
@@ -1100,7 +1098,7 @@ function* watchCreateFileAssetSuccess() {
     createJob(input: {
       targetId: $tdoId,
       tasks: [{
-        engineId: 'insert-into-index'
+        engineId: "insert-into-index"
       }]
     }) {
       id

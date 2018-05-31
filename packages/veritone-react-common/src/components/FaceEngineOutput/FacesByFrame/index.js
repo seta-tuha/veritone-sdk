@@ -35,14 +35,12 @@ class FacesByFrame extends Component {
   };
 
   render() {
-    console.log('*'.repeat(100))
     const {
       recognizedEntityObjectMap,
       framesBySeconds,
       currentMediaPlayerTime,
       onSelectEntity
     } = this.props;
-    console.log('framesBySeconds:', framesBySeconds)
 
     return (
       <div>
@@ -57,7 +55,7 @@ class FacesByFrame extends Component {
             ).map((k, i) => {
               return (
                 <FaceFrameContainer
-                  key={'frame-container-' + k}
+                  key={`frame-container-${k}`}
                   faceFrame={
                     framesBySeconds[
                       currentMediaPlayerTime - currentMediaPlayerTime % 1000

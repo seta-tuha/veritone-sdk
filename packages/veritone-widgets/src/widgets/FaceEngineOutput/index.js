@@ -11,6 +11,7 @@ import Dialog, {
 } from 'material-ui/Dialog';
 import TextField from 'material-ui/TextField';
 import Button from 'material-ui/Button';
+import CircularProgress from 'material-ui/Progress/CircularProgress';
 import { pick, head, debounce } from 'lodash';
 import {
   shape,
@@ -41,9 +42,11 @@ const saga = util.reactReduxSaga.saga;
     entitySearchResults: faceEngineOutput.getEntitySearchResults(state),
     isFetchingEngineResults: faceEngineOutput.isFetchingEngineResults(state),
     isFetchingLibraryEntities: faceEngineOutput.isFetchingEntities(state),
-    isFetchingLibraries: faceEngineOutput.isFetchingLibraries(state)
+    isFetchingLibraries: faceEngineOutput.isFetchingLibraries(state),
+    isSearchingEntities: faceEngineOutput.isSearchingEntities(state)
   }),
   {
+    fetchEngineResults: faceEngineOutput.fetchEngineResults,
     fetchLibraries: faceEngineOutput.fetchLibraries,
     createEntity: faceEngineOutput.createEntity,
     updateEngineResultEntity: faceEngineOutput.updateEngineResultEntity,
@@ -80,18 +83,18 @@ class FaceEngineOutputContainer extends Component {
     ).isRequired,
     selectedEngineId: string,
     faces: shape({
-      recognizedFaces: arrayOf(
-        shape({
-          startTimeMs: number.isRequired,
-          stopTimeMs: number.isRequired,
+      // recognizedFaces: arrayOf(
+      recognizedFaces: shape({
+          startTimeMs: number,
+          stopTimeMs: number,
           object: shape({
             label: string,
             uri: string,
             entityId: string,
             libraryId: string,
           })
-        })
-      ),
+        }),
+      // ),
       unrecognizedFaces: arrayOf(
         shape({
           startTimeMs: number.isRequired,
@@ -145,6 +148,7 @@ class FaceEngineOutputContainer extends Component {
     isFetchingEngineResults: bool,
     isFetchingEntities: bool,
     isFetchingLibraries: bool,
+    isSearchingEntities: bool,
     allowEdit: func
   };
 
@@ -166,6 +170,13 @@ class FaceEngineOutputContainer extends Component {
 
     if (allowEdit && !editMode && !isFetchingEngineResults && !isFetchingEntities) {
       allowEdit(!!faces.unrecognizedFaces.length)
+    }
+
+    if (nextProps.selectedEngineId !== this.props.selectedEngineId) {
+      this.props.fetchEngineResults({
+        selectedEngineId: nextProps.selectedEngineId,
+        tdo: this.props.tdo
+      });
     }
 
     if (!this.props.entities.length && nextProps.entities.length) {
@@ -309,9 +320,7 @@ class FaceEngineOutputContainer extends Component {
   }
 
   handleSearchEntities = (searchText) => {
-    if (searchText && searchText.length) {
-      this.props.fetchEntitySearchResults('people', searchText);
-    }
+    this.props.fetchEntitySearchResults('people', searchText);
   }
 
   handleFaceDetectionEntitySelect = (currentlyEditedFace, selectedEntity)  => {
@@ -447,29 +456,6 @@ class FaceEngineOutputContainer extends Component {
               ))
             }
           </TextField>
-          {/* <Select
-            id="select-library"
-            label="Choose Library"
-            value={this.state.newEntity.libraryId || 'Loading...'}
-              // libraries.length
-              //   ? (this.state.newEntity.library || head(libraries).id)
-              //   : isFetchingLibraries ? 'Loading...' : ''
-            onChange={this.handleNewEntityLibraryChange}
-            margin="dense"
-            fullWidth
-            required
-          >
-            {isFetchingLibraries
-              ? <option value={'Loading...'}>
-                  {'Loading...'}
-                </option>
-              : libraries.map(library => (
-                <option key={library.id} value={library.id}>
-                  {library.name}
-                </option>
-              ))
-            }
-          </Select> */}
         </DialogContent>
         <DialogActions>
           <Button onClick={this.closeDialog} color="primary">
@@ -489,10 +475,28 @@ class FaceEngineOutputContainer extends Component {
       'engines',
       'entities',
       'currentMediaPlayerTime',
-      'entitySearchResults'
+      'entitySearchResults',
+      'onEngineChange',
+      'selectedEngineId',
+      'onFaceOccurrenceClicked',
+      'isSearchingEntities'
     ]);
 
     if (this.props.isFetchingEngineResults || this.props.isFetchingEntities) {
+      return (
+        <div style={{
+          width: '100%',
+          height: '100%',
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center'
+        }}>
+          <CircularProgress size={75} />
+        </div>
+      );
+    }
+
+    if (!this.props.entities.length) {
       return null;
     }
 

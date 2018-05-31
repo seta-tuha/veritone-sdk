@@ -8,16 +8,16 @@ import callGraphQLApi from '../../../../shared/callGraphQLApi';
 
 const { auth: authModule, config: configModule } = modules;
 
-const token = '4e0e4946-cb6e-4859-badb-79debc636d7a';
-const graphQLUrl = "https://api.aws-dev.veritone.com/v3/graphql";
+// const token = 'fbc6364d-91d4-4c18-8fbb-b2992e432708';
+// const graphQLUrl = "https://api.aws-dev.veritone.com/v3/graphql";
 
 /* WATCH FUNCTIONS */
 function* loadEngineResults(tdo, engineId, startOffsetMs, stopOffsetMs) {
   const config = yield select(configModule.getConfig);
-  // const token = yield select(authModule.selectSessionToken);
+  const token = yield select(authModule.selectSessionToken);
 
   const { apiRoot, graphQLEndpoint } = config;
-  // const graphQLUrl = `${apiRoot}/${graphQLEndpoint}`;
+  const graphQLUrl = `${apiRoot}/${graphQLEndpoint}`;
   const variables = {
     tdoId: tdo.id,
     engineIds: [engineId]
@@ -58,8 +58,8 @@ function* fetchEntities(entityIds) {
   const entityQueries = gqlQuery.getEntities(entityIds);
   const config = yield select(configModule.getConfig);
   const { apiRoot, graphQLEndpoint } = config;
-  // const graphQLUrl = `${apiRoot}/${graphQLEndpoint}`;
-  // const token = yield select(authModule.selectSessionToken);
+  const graphQLUrl = `${apiRoot}/${graphQLEndpoint}`;
+  const token = yield select(authModule.selectSessionToken);
 
   try {
     const response = yield call(callGraphQLApi, {
@@ -77,8 +77,8 @@ function* fetchEntities(entityIds) {
 function* fetchLibraries(action) {
   const config = yield select(configModule.getConfig);
   const { apiRoot, graphQLEndpoint } = config;
-  // const graphQLUrl = `${apiRoot}/${graphQLEndpoint}`;
-  // const token = yield select(authModule.selectSessionToken);
+  const graphQLUrl = `${apiRoot}/${graphQLEndpoint}`;
+  const token = yield select(authModule.selectSessionToken);
   const { libraryType } = action.payload;
 
   try {
@@ -98,8 +98,8 @@ function* fetchLibraries(action) {
 function* createNewEntity(action) {
   const config = yield select(configModule.getConfig);
   const { apiRoot, graphQLEndpoint } = config;
-  // const graphQLUrl = `${apiRoot}/${graphQLEndpoint}`;
-  // const token = yield select(authModule.selectSessionToken);
+  const graphQLUrl = `${apiRoot}/${graphQLEndpoint}`;
+  const token = yield select(authModule.selectSessionToken);
   const { meta } = action;
 
   try {
@@ -110,14 +110,29 @@ function* createNewEntity(action) {
       token
     });
 
-    yield put(faceEngineOutput.createEntitySuccess(response,  meta));
+    console.log('response:', response);
+
+    if (response.errors) {
+      return faceEngineOutput.createEntityFailure(response);
+    }
+
+    yield put(faceEngineOutput.updateEngineResultEntity(
+      meta.selectedEngineId,
+      meta.faceObj,
+      response.data.entity
+    ));
+
+    // yield put(faceEngineOutput.createEntitySuccess(response,  meta));
   } catch (error) {
     yield put(faceEngineOutput.createEntityFailure(error, meta));
   }
 }
 
 function* searchForEntities(action) {
-
+  const config = yield select(configModule.getConfig);
+  const { apiRoot, graphQLEndpoint } = config;
+  const graphQLUrl = `${apiRoot}/${graphQLEndpoint}`;
+  const token = yield select(authModule.selectSessionToken);
   const { libraryType, searchText } = action.payload;
 
   const meta = {
@@ -126,6 +141,14 @@ function* searchForEntities(action) {
   };
 
   try {
+    if (!searchText) {
+      return yield put(
+        faceEngineOutput.fetchEntitySearchResultsSuccess({ data: [] }, meta)
+      );
+    }
+
+    yield put(faceEngineOutput.fetchingEntitySearchResults());
+
     const response = yield call(callGraphQLApi, {
       endpoint: graphQLUrl,
       query: gqlQuery.searchForEntities,
@@ -154,7 +177,7 @@ function* onMount(tdo, selectedEngineId) {
 
 /* WATCHERS */
 
-function* watchFetchEngineResults() {
+function* watchFetchEngineResultsSuccess() {
   yield takeEvery(
     (action) => action.type === faceEngineOutput.FETCH_ENGINE_RESULTS_SUCCESS,
     function* (action) {
@@ -201,10 +224,27 @@ function* watchSearchEntities() {
   )
 }
 
+function* watchFetchEngineResults() {
+  yield takeEvery(
+    (action) => action.type === faceEngineOutput.FETCH_ENGINE_RESULTS,
+    function* (action) {
+      const { tdo, selectedEngineId } = action.meta;
+      yield call(
+        loadEngineResults,
+        tdo,
+        selectedEngineId,
+        0,
+        Date.parse(tdo.stopDateTime) - Date.parse(tdo.startDateTime)
+      )
+    }
+  );
+}
+
 export default function* root({ tdo, selectedEngineId }) {
   yield all([
     fork(onMount, tdo, selectedEngineId),
     fork(watchFetchEngineResults),
+    fork(watchFetchEngineResultsSuccess),
     fork(watchFetchLibraries),
     fork(watchCreateEntity),
     fork(watchSearchEntities)

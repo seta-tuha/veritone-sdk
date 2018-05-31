@@ -311,7 +311,10 @@ class MediaDetailsWidget extends React.Component {
   };
 
   toggleEditMode = () => {
-    this.props.toggleEditMode(this.props._widgetId);
+    this.props.toggleEditMode(
+      this.props._widgetId,
+      this.props.selectedEngineCategory
+    );
   };
 
   toggleExpandedMode = () => {
@@ -617,7 +620,10 @@ class MediaDetailsWidget extends React.Component {
 
           {this.state.selectedTabValue === 'mediaDetails' && (
             <div className={styles.mediaScreen}>
-              {!isExpandedMode && (
+              {selectedEngineCategory &&
+                selectedEngineCategory.categoryType !== 'transcript' &&
+                selectedEngineCategory.categoryType !== 'correlation' &&
+                (!isExpandedMode || isEditModeEnabled) && (
                 <div className={styles.mediaView}>
                   <MediaPlayer
                     store={this.context.store}
@@ -656,6 +662,7 @@ class MediaDetailsWidget extends React.Component {
                         selectedEngineId={selectedEngineId}
                         editMode={isEditModeEnabled}
                         allowEdit={this.handleShowEditBtn}
+                        onFaceOccurrenceClicked={this.handleUpdateMediaPlayerTime}
                       />
                     )}
                   {selectedEngineCategory &&

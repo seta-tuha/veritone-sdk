@@ -18,6 +18,10 @@ import NoFacesFound from './NoFacesFound';
 import styles from './styles.scss';
 
 const FacesByLibrary = ({ faceEntityLibraries, onSelectEntity }) => {
+  const handleSelectEntity = (faceEntityId) => (e) => {
+    onSelectEntity(faceEntityId);
+  }
+
  return isEmpty(faceEntityLibraries)
     ? <NoFacesFound />
     : (
@@ -52,7 +56,7 @@ const FacesByLibrary = ({ faceEntityLibraries, onSelectEntity }) => {
                       src={face.profileImage || noAvatar}
                     />
                   }
-                  onClick={onSelectEntity(face.entityId)}
+                  onClick={handleSelectEntity(face.entityId)}
                 />
               ))}
             </div>

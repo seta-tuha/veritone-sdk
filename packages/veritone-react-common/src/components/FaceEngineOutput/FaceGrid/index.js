@@ -1,5 +1,7 @@
 import React, { Component } from 'react';
 import { arrayOf, shape, number, string, bool, func } from 'prop-types';
+import { pick } from 'lodash';
+
 import NoFacesFound from '../NoFacesFound';
 import FaceDetectionBox from '../FaceDetectionBox';
 
@@ -29,7 +31,8 @@ class FaceGrid extends Component {
     onEditFaceDetection: func,
     onFaceOccurrenceClicked: func,
     onRemoveFaceDetection: func,
-    onSearchForEntities: func
+    onSearchForEntities: func,
+    isSearchingEntities: bool
   };
 
   handleFaceClick = face => evt => {
@@ -44,6 +47,12 @@ class FaceGrid extends Component {
 
   render() {
     const { faces } = this.props;
+    const detectionBoxProps = pick(this.props, [
+      'onEditFaceDetection',
+      'onRemoveFaceDetection',
+      'onSearchForEntities',
+      'isSearchingEntities'
+    ])
 
     return (
       <div className={styles.faceGrid}>
@@ -51,19 +60,17 @@ class FaceGrid extends Component {
           ? <NoFacesFound />
           : faces.map((face, idx) => {
             return (
+                  // ${face.object.label}-${face.object.originalImage}`
               <FaceDetectionBox
                 key={
-                  `face-${face.startTimeMs}-${face.stopTimeMs}-
-                  ${face.object.label}-${face.object.originalImage}`
+                  `face-${face.startTimeMs}-${face.stopTimeMs}-${face.object.uri}`
                 }
                 face={face}
                 enableEdit={this.props.editMode}
                 addNewEntity={this.handleAddNewEntity(idx)}
                 searchResults={this.props.entitySearchResults}
-                onEditFaceDetection={this.props.onEditFaceDetection}
-                onRemoveFaceDetection={this.props.onRemoveFaceDetection}
                 onClick={this.handleFaceClick(face)}
-                onSearchForEntities={this.props.onSearchForEntities}
+                {...detectionBoxProps}
               />
             );
           })

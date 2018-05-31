@@ -1,7 +1,7 @@
 import { fork, all, call, put, takeEvery, select } from 'redux-saga/effects';
 import { get, uniq, isEmpty } from 'lodash';
 import { modules } from 'veritone-redux-common';
-import { getFaceEngineAssetData } from './faceEngineOutput';
+import { getFaceEngineAssetData, removeUserDetectedFaces } from './faceEngineOutput';
 const { auth: authModule, config: configModule } = modules;
 
 import callGraphQLApi from '../../../shared/callGraphQLApi';
@@ -26,6 +26,7 @@ import {
   REQUEST_SCHEMAS_FAILURE,
   SAVE_ASSET_DATA,
   CREATE_FILE_ASSET_SUCCESS,
+  TOGGLE_EDIT_MODE,
   loadEngineCategoriesSuccess,
   loadEngineCategoriesFailure,
   loadEngineResultsRequest,
@@ -48,7 +49,8 @@ import {
   createFileAssetSuccess,
   createFileAssetFailure,
   createBulkEditTranscriptAssetSuccess,
-  createBulkEditTranscriptAssetFailure
+  createBulkEditTranscriptAssetFailure,
+  isEditModeEnabled
 } from '.';
 
 import { UPDATE_ENGINE_RESULT_ENTITY } from './faceEngineOutput';
@@ -564,7 +566,6 @@ function* deleteAssetsSaga(assetIds) {
 
 function* createFileAssetSaga(widgetId, type, contentType, sourceData, fileData) {
   const requestTdo = yield select(getTdo, widgetId);
-  console.log('requestTdo:', requestTdo);
   const createAssetQuery = `mutation createAsset($tdoId: ID!, $type: String, $contentType: String, $file: UploadedFile){
     createAsset( input: {
       containerId: $tdoId,
@@ -588,8 +589,6 @@ function* createFileAssetSaga(widgetId, type, contentType, sourceData, fileData)
   const graphQLUrl = `${apiRoot}/${graphQLEndpoint}`;
   const token = yield select(authModule.selectSessionToken);
 
-  console.log('token:', token)
-
   const formData = new FormData();
   formData.append('query', createAssetQuery);
   formData.append('variables', JSON.stringify(variables));
@@ -607,21 +606,18 @@ function* createFileAssetSaga(widgetId, type, contentType, sourceData, fileData)
         Authorization: `Bearer ${authToken}`
       }
     }).then(r => {
-      console.log('r.json():', r.json());
       return r.json();
-    });
+    })
   };
 
   let response;
   try {
     response = yield call(saveFile, { endpoint: graphQLUrl, data: formData, authToken: token});
-    console.log('response:', response);
   } catch (error) {
     return yield put(createFileAssetFailure(widgetId, { error }));
   }
-  console.log('response:', response);
+
   if (!isEmpty(response.errors)) {
-    console.log('+'.repeat(50))
     return yield put(createFileAssetFailure(widgetId, { error: response.errors.join(', \n') }));
   }
   if (!get(response, 'data.createAsset.id')) {
@@ -629,7 +625,7 @@ function* createFileAssetSaga(widgetId, type, contentType, sourceData, fileData)
   }
 
   const assetId = get(response, 'data.createAsset.id');
-  console.log('assetId:', assetId)
+
   if (assetId) {
     yield put(createFileAssetSuccess(widgetId, assetId));
   }
@@ -1145,6 +1141,26 @@ function* watchCreateFileAssetSuccess() {
   )
 }
 
+function* watchCancelEdit() {
+  yield takeEvery(
+    action => action.type === TOGGLE_EDIT_MODE,
+    function* (action) {
+      const editModeIsEnabled = yield select(
+        isEditModeEnabled,
+        action.meta.widgetId
+      );
+
+      if (!editModeIsEnabled) {
+        const selectedEngineCategory = action.payload.selectedEngineCategory;
+
+        if (selectedEngineCategory.categoryType === 'face') {
+          yield put(removeUserDetectedFaces())
+        }
+      }
+    }
+  )
+}
+
 export default function* root() {
   yield all([
     fork(watchLoadEngineResultsRequest),
@@ -1157,6 +1173,7 @@ export default function* root() {
     fork(watchUpdateTdoContentTemplates),
     fork(watchFaceEngineEntityUpdate),
     fork(watchSaveAssetData),
-    fork(watchCreateFileAssetSuccess)
+    fork(watchCreateFileAssetSuccess),
+    fork(watchCancelEdit)
   ]);
 }

@@ -7,6 +7,8 @@ import Paper from 'material-ui/Paper';
 import Button from 'material-ui/Button';
 import { MenuItem } from 'material-ui/Menu';
 import Avatar from 'material-ui/Avatar';
+import CircularProgress from 'material-ui/Progress/CircularProgress';
+
 import { Manager, Target, Popper } from 'react-popper';
 
 import { msToReadableString } from 'helpers/time';
@@ -120,7 +122,8 @@ class FaceDetectionBox extends Component {
       searchResults,
       enableEdit,
       onClick,
-      onSearchForEntities
+      onSearchForEntities,
+      isSearchingEntities
     } = this.props;
 
     return (
@@ -190,14 +193,16 @@ class FaceDetectionBox extends Component {
                         <div ref={this.dropdownRef}>
                           <Paper className={styles.autoCompleteDropdown} square>
                             <div className={styles.searchResultsList}>
-                              {searchResults && searchResults.length
-                              ?
-                                renderEntitySearchMenu({
-                                  results: searchResults,
-                                  getItemProps,
-                                  highlightedIndex
-                                })
-                              :  <div>Results Not Found</div>
+                              {isSearchingEntities
+                              ? <CircularProgress />
+                              : (searchResults && searchResults.length)
+                                ?
+                                  renderEntitySearchMenu({
+                                    results: searchResults,
+                                    getItemProps,
+                                    highlightedIndex
+                                  })
+                                :  <div>Results Not Found</div>
                               }
                             </div>
                             <div className={styles.addNewEntity}>

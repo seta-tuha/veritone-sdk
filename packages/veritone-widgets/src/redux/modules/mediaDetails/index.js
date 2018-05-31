@@ -734,8 +734,11 @@ export const setEngineId = (widgetId, engineId) => ({
   meta: { widgetId }
 });
 
-export const toggleEditMode = widgetId => ({
+export const toggleEditMode = (widgetId, selectedEngineCategory) => ({
   type: TOGGLE_EDIT_MODE,
+  payload: {
+    selectedEngineCategory
+  },
   meta: { widgetId }
 });
 

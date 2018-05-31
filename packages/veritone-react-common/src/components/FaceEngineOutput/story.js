@@ -167,7 +167,8 @@ class FaceEngineOutputStory extends Component {
 
     const faceEntities = {
       unrecognizedFaces: [],
-      recognizedFaces: []
+      // recognizedFaces: []
+      recognizedFaces: {}
     };
 
     // flatten data series for currently selected engine
@@ -185,7 +186,8 @@ class FaceEngineOutputStory extends Component {
       if (!faceObj.object.entityId || !entities.length || !entity || !entity.name) {
         faceEntities.unrecognizedFaces.push(faceObj);
       } else {
-        faceEntities.recognizedFaces.push(faceObj);
+        // faceEntities.recognizedFaces.push(faceObj);
+        faceEntities.recognizedFaces[faceObj.object.entityId] = faceObj;
       }
     });
 

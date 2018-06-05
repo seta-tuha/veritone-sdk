@@ -47,7 +47,7 @@ export default class SnippetSegment extends Component {
     }
   };
 
-  handleSnippetChange = (entryData) => {
+  handleSnippetChange = entryData => {
     const { editMode, onChange } = this.props;
 
     if (editMode && onChange) {

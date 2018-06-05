@@ -270,9 +270,11 @@ class MediaInfoPanel extends Component {
       veritoneProgram: {
         ...tdo.details.veritoneProgram,
         programImage:
-          tdo.sourceImageUrl || get(tdo, 'details.veritoneProgram.programImage'),
+          tdo.sourceImageUrl ||
+          get(tdo, 'details.veritoneProgram.programImage'),
         programLiveImage:
-          tdo.thumbnailUrl || get(tdo, 'details.veritoneProgram.programLiveImage')
+          tdo.thumbnailUrl ||
+          get(tdo, 'details.veritoneProgram.programLiveImage')
       }
     };
 
@@ -295,57 +297,58 @@ class MediaInfoPanel extends Component {
                     </IconButton>
                   </div>
                 </Target>
-                {isMenuOpen &&
-                <Popper placement="bottom-end" eventsEnabled={isMenuOpen}>
-                  <ClickAwayListener onClickAway={this.onMenuClose}>
-                    <Grow
-                      in={isMenuOpen}
-                      id="menu-list-grow"
-                      style={{ transformOrigin: '0 0 0' }}
-                    >
-                      <Paper>
-                        <MenuList role="menu">
-                          <MenuItem
-                            classes={{ root: styles.headerMenuItem }}
-                            onClick={this.onMetadataOpen}
-                          >
-                            Edit Metadata
-                          </MenuItem>
-                          <MenuItem
-                            classes={{ root: styles.headerMenuItem }}
-                            onClick={this.onEditTagsOpen}
-                          >
-                            Edit Tags
-                          </MenuItem>
-                          {this.isDownloadMediaEnabled() && (
+                {isMenuOpen && (
+                  <Popper placement="bottom-end" eventsEnabled={isMenuOpen}>
+                    <ClickAwayListener onClickAway={this.onMenuClose}>
+                      <Grow
+                        in={isMenuOpen}
+                        id="menu-list-grow"
+                        style={{ transformOrigin: '0 0 0' }}
+                      >
+                        <Paper>
+                          <MenuList role="menu">
                             <MenuItem
                               classes={{ root: styles.headerMenuItem }}
-                              disabled={!this.isDownloadAllowed()}
-                              onClick={this.downloadFile}
+                              onClick={this.onMetadataOpen}
                             >
-                              Download
+                              Edit Metadata
                             </MenuItem>
-                          )}
-                          {this.props.contextMenuExtensions &&
-                            this.props.contextMenuExtensions.tdos.map(
-                              tdoMenu => (
-                                <MenuItem
-                                  key={tdoMenu.id}
-                                  classes={{ root: styles.headerMenuItem }}
-                                  // eslint-disable-next-line
-                                  onClick={() =>
-                                    this.handleContextMenuClick(tdoMenu)
-                                  }
-                                >
-                                  {tdoMenu.label}
-                                </MenuItem>
-                              )
+                            <MenuItem
+                              classes={{ root: styles.headerMenuItem }}
+                              onClick={this.onEditTagsOpen}
+                            >
+                              Edit Tags
+                            </MenuItem>
+                            {this.isDownloadMediaEnabled() && (
+                              <MenuItem
+                                classes={{ root: styles.headerMenuItem }}
+                                disabled={!this.isDownloadAllowed()}
+                                onClick={this.downloadFile}
+                              >
+                                Download
+                              </MenuItem>
                             )}
-                        </MenuList>
-                      </Paper>
-                    </Grow>
-                  </ClickAwayListener>
-                </Popper>}
+                            {this.props.contextMenuExtensions &&
+                              this.props.contextMenuExtensions.tdos.map(
+                                tdoMenu => (
+                                  <MenuItem
+                                    key={tdoMenu.id}
+                                    classes={{ root: styles.headerMenuItem }}
+                                    // eslint-disable-next-line
+                                    onClick={() =>
+                                      this.handleContextMenuClick(tdoMenu)
+                                    }
+                                  >
+                                    {tdoMenu.label}
+                                  </MenuItem>
+                                )
+                              )}
+                          </MenuList>
+                        </Paper>
+                      </Grow>
+                    </ClickAwayListener>
+                  </Popper>
+                )}
               </Manager>
               <IconButton
                 className={styles.closeButton}
@@ -371,17 +374,18 @@ class MediaInfoPanel extends Component {
                 </div>
               </div>
             )}
-            {tdo.startDateTime && tdo.stopDateTime && (
-              <div className={styles.infoField}>
-                <div className={styles.infoFieldLabel}>Duration</div>
-                <div className={styles.infoFieldData}>
-                  {this.differenceToHhMmSs(
-                    tdo.startDateTime,
-                    tdo.stopDateTime
-                  )}
+            {tdo.startDateTime &&
+              tdo.stopDateTime && (
+                <div className={styles.infoField}>
+                  <div className={styles.infoFieldLabel}>Duration</div>
+                  <div className={styles.infoFieldData}>
+                    {this.differenceToHhMmSs(
+                      tdo.startDateTime,
+                      tdo.stopDateTime
+                    )}
+                  </div>
                 </div>
-              </div>
-            )}
+              )}
             {this.props.engineCategories &&
               this.props.engineCategories.length && (
                 <div className={styles.infoField}>

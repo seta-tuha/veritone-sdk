@@ -104,7 +104,7 @@ class FaceDetectionBox extends Component {
 
   itemToString = item => (item ? item.name : '');
 
-  inputRef = node => this._inputRef = node;
+  inputRef = node => (this._inputRef = node);
 
   render() {
     const {
@@ -176,7 +176,11 @@ class FaceDetectionBox extends Component {
                     />
                   </div>
                   {isOpen ? (
-                    <Popper placement="bottom-start" style={{ zIndex: 1 }} target={this._inputRef}>
+                    <Popper
+                      placement="bottom-start"
+                      style={{ zIndex: 1 }}
+                      target={this._inputRef}
+                    >
                       <Paper className={styles.autoCompleteDropdown} square>
                         <div className={styles.searchResultsList}>
                           {isSearchingEntities ? (

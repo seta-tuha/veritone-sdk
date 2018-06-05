@@ -36,7 +36,7 @@ export default class TemplateList extends React.Component {
           </div>
           {isAdded ? (
             <IconButton
-              className={styles.trashIcon}
+              className={styles.btnIcon}
               onClick={this.removeTemplate(schemaId)}
               aria-label="trash"
               disableRipple
@@ -45,7 +45,7 @@ export default class TemplateList extends React.Component {
             </IconButton>
           ) : (
             <IconButton
-              className={styles.trashIcon}
+              className={styles.btnIcon}
               onClick={this.addTemplate(schemaId)}
               aria-label="add"
               disableRipple

@@ -61,6 +61,8 @@ export const SET_EDIT_TAGS_MODE = `${namespace}_SET_EDIT_TAGS_MODE`;
 export const UPDATE_TDO_TAGS = `${namespace}_UPDATE_TDO_TAGS`;
 export const UPDATE_TDO_TAGS_SUCCESS = `${namespace}_UPDATE_TDO_TAGS_SUCCESS`;
 export const UPDATE_TDO_TAGS_FAILURE = `${namespace}_UPDATE_TDO_TAGS_FAILURE`;
+export const HANDLE_CME_SAGA = `${namespace}_CLICK_CME_SAGA`;
+
 
 const defaultMDPState = {
   engineCategories: [],
@@ -1170,6 +1172,14 @@ export const setEditTagsMode = (editingTags, widgetId) => ({
   payload: { editingTags },
   meta: { widgetId }
 });
+
+export const handleCMESaga = (cme, tdoId) => {
+  return (
+    ({
+      type: HANDLE_CME_SAGA,
+      payload: { cme, tdoId }
+    }))
+}
 
 export const createQuickExport = (
   tdoId,

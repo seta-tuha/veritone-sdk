@@ -57,6 +57,7 @@ import {
   RESTORE_ORIGINAL_ENGINE_RESULTS_SUCCESS,
   LOAD_TDO_SUCCESS,
   REFRESH_ENGINE_RUNS_SUCCESS,
+  HANDLE_CME_SAGA,
   loadEngineCategoriesSuccess,
   loadEngineCategoriesFailure,
   loadTdoRequest,
@@ -86,8 +87,10 @@ import {
   getEngineCategories,
   setSelectedCombineViewTypeId,
   categoryCombinationMapper,
-  getCombineViewTypes
+  getCombineViewTypes,
 } from '.';
+
+import { showNotification } from '../notifications'
 
 import * as gqlQuery from './queries';
 
@@ -634,7 +637,7 @@ function* deleteAssetsSaga(assetIds) {
 }
 
 function* watchUpdateTdoContentTemplates() {
-  yield takeEvery(UPDATE_TDO_CONTENT_TEMPLATES, function*(action) {
+  yield takeEvery(UPDATE_TDO_CONTENT_TEMPLATES, function* (action) {
     const {
       contentTemplatesToDelete,
       contentTemplatesToCreate
@@ -788,7 +791,7 @@ function* fetchAssets(tdoId, assetType) {
 }
 
 function* watchRestoreOriginalEngineResults() {
-  yield takeEvery(RESTORE_ORIGINAL_ENGINE_RESULTS, function*(action) {
+  yield takeEvery(RESTORE_ORIGINAL_ENGINE_RESULTS, function* (action) {
     const { widgetId } = action.meta;
     const {
       tdo,
@@ -916,6 +919,39 @@ function* watchRestoreOriginalEngineResults() {
   });
 }
 
+
+
+
+function* handleCMESaga(cme, tdoId) {
+  const { applicationId: appId, label: actionName } = cme
+  // call graphql
+  const config = yield select(configModule.getConfig);
+  const { apiRoot, graphQLEndpoint } = config;
+  const graphQLUrl = `${apiRoot}/${graphQLEndpoint}`;
+  const token = yield select(authModule.selectSessionToken);
+
+  const input = {
+    eventType: 'context_menu_extensions',
+    eventName: 'TDOCMESelected',
+    application: appId,
+    payload: `{
+          "tdoId": ${tdoId},
+          "actionName": "${actionName}"
+        }`
+  }
+  const response = yield call(fetchGraphQLApi, {
+    endpoint: graphQLUrl,
+    query: gqlQuery.emitEvent,
+    variables: { input },
+    token
+  });
+  if (!get(response, 'data.emitEvent.id') || get(response, 'errors.length')) {
+    yield put(showNotification('Something went wrong'));
+  } else {
+    yield put(showNotification(`Action ${actionName} was initiated`));
+  }
+}
+
 function* emitEntityUpdatedEvent(tdoId) {
   const config = yield select(configModule.getConfig);
   const { apiRoot, graphQLEndpoint } = config;
@@ -958,8 +994,15 @@ function* emitEntityUpdatedEvent(tdoId) {
   }
 }
 
+function* watchHandleCMEEvent() {
+  yield takeEvery(HANDLE_CME_SAGA, function* (action) {
+    const { cme, tdoId } = action.payload;
+    yield* handleCMESaga(cme, tdoId);
+  })
+}
+
 function* watchLoadEngineResultsComplete(widgetId) {
-  yield takeEvery(engineResultsModule.FETCH_ENGINE_RESULTS_SUCCESS, function*(
+  yield takeEvery(engineResultsModule.FETCH_ENGINE_RESULTS_SUCCESS, function* (
     action
   ) {
     // Do not do duplicate fetch - faces widget handles this query
@@ -997,7 +1040,7 @@ function* watchLoadEngineResultsComplete(widgetId) {
 }
 
 function* watchLoadTdoRequest() {
-  yield takeEvery(LOAD_TDO, function*(action) {
+  yield takeEvery(LOAD_TDO, function* (action) {
     const { tdoId } = action.payload;
     const { widgetId } = action.meta;
     yield call(loadTdoSaga, widgetId, tdoId);
@@ -1043,7 +1086,7 @@ function* uploadImage(fileToUpload, widgetId) {
   ) {
     throw new Error(
       `Call to getSignedWritableUrl returned error: ${
-        signedWritableUrlResponse.errors[0].message
+      signedWritableUrlResponse.errors[0].message
       }`
     );
   }
@@ -1085,7 +1128,7 @@ function* uploadImage(fileToUpload, widgetId) {
 }
 
 function* watchUpdateTdoRequest() {
-  yield takeEvery(UPDATE_TDO, function*(action) {
+  yield takeEvery(UPDATE_TDO, function* (action) {
     const { tdoId, tdoDataToUpdate } = action.payload;
     const { widgetId } = action.meta;
 
@@ -1158,14 +1201,14 @@ function* watchUpdateTdoRequest() {
 }
 
 function* watchLoadContentTemplates() {
-  yield takeEvery(LOAD_CONTENT_TEMPLATES, function*(action) {
+  yield takeEvery(LOAD_CONTENT_TEMPLATES, function* (action) {
     const { widgetId } = action.meta;
     yield call(loadContentTemplates, widgetId);
   });
 }
 
 function* watchSetEngineId() {
-  yield takeEvery(SET_SELECTED_ENGINE_ID, function*(action) {
+  yield takeEvery(SET_SELECTED_ENGINE_ID, function* (action) {
     const selectedEngineId = action.payload;
     const { widgetId } = action.meta;
     const selectedEngineCategory = yield select(
@@ -1242,7 +1285,7 @@ function* watchSetCombineEngineId() {
 }
 
 function* watchSelectEngineCategory() {
-  yield takeEvery(SELECT_ENGINE_CATEGORY, function*(action) {
+  yield takeEvery(SELECT_ENGINE_CATEGORY, function* (action) {
     const { engines } = action.payload;
     const { widgetId } = action.meta;
     const engineId = engines.length ? engines[0].id : undefined;
@@ -1279,7 +1322,7 @@ function* watchSelectEngineCategory() {
 }
 
 function* watchTranscriptStatus() {
-  yield takeEvery(UPDATE_EDIT_STATUS, function*(action) {
+  yield takeEvery(UPDATE_EDIT_STATUS, function* (action) {
     yield put(toggleSaveMode(action.hasUserEdits));
   });
 }
@@ -1328,7 +1371,7 @@ function* insertIntoIndexSaga(tdoId) {
 }
 
 function* watchLatestFetchEngineResultsStart(widgetId) {
-  yield takeLatest([engineResultsModule.FETCH_ENGINE_RESULTS], function*() {
+  yield takeLatest([engineResultsModule.FETCH_ENGINE_RESULTS], function* () {
     yield put(setEditButtonState(widgetId, true));
   });
 }
@@ -1339,7 +1382,7 @@ function* watchLatestFetchEngineResultsEnd(widgetId) {
       engineResultsModule.FETCH_ENGINE_RESULTS_SUCCESS,
       engineResultsModule.FETCH_ENGINE_RESULTS_FAILURE
     ],
-    function*() {
+    function* () {
       yield put(setEditButtonState(widgetId, false));
     }
   );
@@ -1405,7 +1448,7 @@ function* watchToStartRefreshEngineRunsWithTimeout(
 ) {
   yield takeLatest(
     [LOAD_TDO_SUCCESS, REFRESH_ENGINE_RUNS_SUCCESS],
-    function*() {
+    function* () {
       if (refreshIntervalMs > 0) {
         const requestTdo = yield select(getTdo, widgetId);
         yield delay(refreshIntervalMs);
@@ -1418,7 +1461,7 @@ function* watchToStartRefreshEngineRunsWithTimeout(
 function* watchEditSuccess(widgetId) {
   yield takeLatest(
     [SAVE_TRANSCRIPT_EDITS_SUCCESS, SAVE_FACE_EDITS_SUCCESS],
-    function*() {
+    function* () {
       const requestTdo = yield select(getTdo, widgetId);
       yield call(refreshEngineRuns, widgetId, requestTdo.id);
       yield put(createFileAssetSuccess(widgetId));
@@ -1429,7 +1472,7 @@ function* watchEditSuccess(widgetId) {
 function* watchSaveEntityUpdatesSuccess(widgetId) {
   yield takeEvery(
     [SAVE_FACE_EDITS_SUCCESS, RESTORE_ORIGINAL_ENGINE_RESULTS_SUCCESS],
-    function*() {
+    function* () {
       const selectedEngineCategory = yield select(
         getSelectedEngineCategory,
         widgetId
@@ -1467,6 +1510,7 @@ export default function* root({ id, mediaId, refreshIntervalMs }) {
     fork(watchToStartRefreshEngineRunsWithTimeout, id, refreshIntervalMs),
     fork(watchEditSuccess, id),
     fork(watchSaveEntityUpdatesSuccess, id),
-    fork(onMount, id, mediaId)
+    fork(onMount, id, mediaId),
+    fork(watchHandleCMEEvent)
   ]);
 }

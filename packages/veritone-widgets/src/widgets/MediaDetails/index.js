@@ -19,6 +19,8 @@ import DialogContent from '@material-ui/core/DialogContent';
 import DialogContentText from '@material-ui/core/DialogContentText';
 import Button from '@material-ui/core/Button';
 import Tooltip from '@material-ui/core/Tooltip';
+import GlobalSnackBar from '../Notifications/GlobalSnackBar'
+import * as notificationsModule from '../../redux/modules/notifications';
 import {
   bool,
   func,
@@ -80,7 +82,6 @@ import widget from '../../shared/widget';
 import rootSaga from '../../redux/modules/mediaDetails/saga';
 
 const saga = util.reactReduxSaga.saga;
-
 const programLiveImageNullState =
   '//static.veritone.com/veritone-ui/default-nullstate.svg';
 const enginesNullState =
@@ -90,6 +91,7 @@ const enginesNullState =
   id: id || guid()
 }))
 @saga(rootSaga)
+
 @connect(
   (state, { id, mediaId }) => ({
     engineCategories: mediaDetailsModule.getEngineCategories(state, id),
@@ -167,7 +169,8 @@ const enginesNullState =
       'downloadPublicMedia'
     ),
     downloadMediaEnabled: userModule.hasFeature(state, 'downloadMedia'),
-    isShowingTagsView: mediaDetailsModule.isShowingTagsView(state, id)
+    isShowingTagsView: mediaDetailsModule.isShowingTagsView(state, id),
+    snackbarMessage: notificationsModule.selectSnackbarNotificationState(state).message
   }),
   {
     initializeWidget: mediaDetailsModule.initializeWidget,
@@ -191,7 +194,8 @@ const enginesNullState =
     cancelEdit: mediaDetailsModule.cancelEdit,
     enableTagsView: mediaDetailsModule.enableTagsView,
     setEditTagsMode: mediaDetailsModule.setEditTagsMode,
-    saveTags: mediaDetailsModule.updateTdo
+    saveTags: mediaDetailsModule.updateTdo,
+    handleCMESaga: mediaDetailsModule.handleCMESaga
   },
   null,
   { withRef: true }
@@ -436,7 +440,9 @@ class MediaDetailsWidget extends React.Component {
     setEditTagsMode: func,
     isShowingTagsView: bool,
     enableTagsView: func,
-    saveTags: func
+    saveTags: func,
+    handleCMESaga: func,
+    snackbarMessage: string
   };
 
   static contextTypes = {
@@ -451,13 +457,16 @@ class MediaDetailsWidget extends React.Component {
   state = {
     isMenuOpen: false,
     selectedTabValue: 'mediaDetails',
-    engineOutputExportOpen: false
+    engineOutputExportOpen: false,
   };
 
   // eslint-disable-next-line react/sort-comp
   UNSAFE_componentWillMount() {
     this.props.initializeWidget(this.props.id);
     this.setHotKeyListeners();
+    this.setState({
+      isClickCME: false
+    });
   }
 
   UNSAFE_componentWillReceiveProps(nextProps) {
@@ -796,7 +805,13 @@ class MediaDetailsWidget extends React.Component {
   };
 
   handleContextMenuClick = cme => {
-    window.open(cme.url.replace('${tdoId}', this.props.tdo.id), '_blank');
+    if(cme.url && cme.url !== '') {
+      window.open(cme.url.replace('${tdoId}', this.props.tdo.id), '_blank');
+    }
+    this.props.handleCMESaga(cme, this.props.tdo.id);
+    this.setState({
+      isClickCME: true
+    })
   };
 
   showEditButton = () => {
@@ -808,7 +823,7 @@ class MediaDetailsWidget extends React.Component {
     ) {
       return false;
     }
-    if (isCombineView) {  
+    if (isCombineView) {
       return this.isSelectedCombineEngineCompleted();
     }
     return true;
@@ -1066,10 +1081,13 @@ class MediaDetailsWidget extends React.Component {
       isBackActive,
       setEditTagsMode,
       isShowingTagsView,
-      saveTags
+      saveTags,
+      snackbarMessage,
     } = this.props;
 
-    const { isMenuOpen } = this.state;
+    const { isMenuOpen, isClickCME } = this.state;
+
+    const snackbarStyle = snackbarMessage === 'Something went wrong' ? styles.errSnackBar : styles.successSnackBar
 
     // Filter out any categories that should be combined with another category
     const {
@@ -1911,6 +1929,12 @@ class MediaDetailsWidget extends React.Component {
               onCancel={this.closeEngineOutputExport}
             />
           )}
+          {isClickCME &&
+            <GlobalSnackBar
+            className={snackbarStyle}
+            anchorOrigin={{ vertical: 'bottom', horizontal: 'left' }}
+            />
+          }
       </div>
     );
   }
